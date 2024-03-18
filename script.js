@@ -1,1 +1,113 @@
-const chatLog=document.getElementById("chat-log"),userInput=document.getElementById("user-input"),sendButton=document.getElementById("send-button"),buttonIcon=document.getElementById("button-icon"),info=document.querySelector(".info");function handleInput(e){("click"===e.type||"keydown"===e.type&&"Enter"===e.key)&&sendMessage()}async function sendMessage(){const e=userInput.value.trim();if(!/^[A-Za-z0-9 !@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]{1,400}$/.test(e))return void alert("Message should only contain English letters, numbers, and be less than 400 characters.");if(""===e)return;if(switchActives(!1),userInput.value="",appendMessage("user",e),"developer"===e)return void setTimeout((()=>{appendMessage("bot","VLR - Iraclion TG: @VLR_Iraclion"),switchActives(!0)}),1e3);const t={method:"POST",headers:{"content-type":"application/x-www-form-urlencoded","X-RapidAPI-Key":"dec142f56cmsh3b57075872d7cd6p1bac47jsn4ad75d3b9c8b","X-RapidAPI-Host":"robomatic-ai.p.rapidapi.com"},body:new URLSearchParams({in:e,op:"in",cbot:"1",SessionID:"RapidAPI1",cbid:"1",key:"RHMN5hnQ4wTYZBGCF3dfxzypt68rVP",ChatSource:"RapidAPI",duration:"1"})};try{const e=await fetch("https://robomatic-ai.p.rapidapi.com/api",t),n=await e.json();appendMessage("bot",n.out||"Sorry, I can't process your request.")}catch(e){appendMessage("bot","An error occurred while processing your request.")}finally{switchActives(!0)}}function appendMessage(e,t){info.style.display="none";const n=document.createElement("div"),s=document.createElement("div"),a=document.createElement("div"),o=document.createElement("i");a.classList.add("chat-box"),s.classList.add("icon"),n.classList.add(e),n.innerText=t,"user"===e?(o.classList.add("fa-regular","fa-user"),s.setAttribute("id","user-icon")):(o.classList.add("fa-solid","fa-robot"),s.setAttribute("id","bot-icon")),s.appendChild(o),a.appendChild(s),a.appendChild(n),chatLog.appendChild(a),chatLog.scrollTo=chatLog.scrollHeight}function switchActives(e){userInput.disabled=!e,sendButton.disabled=!e,buttonIcon.classList.toggle("fa-solid",e),buttonIcon.classList.toggle("fa-paper-plane",e),buttonIcon.classList.toggle("fas",!e),buttonIcon.classList.toggle("fa-spinner",!e),buttonIcon.classList.toggle("fa-pulse",!e)}sendButton.addEventListener("click",handleInput),userInput.addEventListener("keydown",handleInput);
+const chatLog = document.getElementById("chat-log"),
+  userInput = document.getElementById("user-input"),
+  sendButton = document.getElementById("send-button"),
+  buttonIcon = document.getElementById("button-icon"),
+  info = document.querySelector(".info");
+
+function handleInput(event) {
+  if (
+    event.type === "click" ||
+    (event.type === "keydown" && event.key === "Enter")
+  ) {
+    sendMessage();
+  }
+}
+
+sendButton.addEventListener("click", handleInput);
+userInput.addEventListener("keydown", handleInput);
+
+async function sendMessage() {
+  const message = userInput.value.trim();
+  // const isValidMessage = /^[A-Za-z0-9 ]{1,400}$/.test(message);
+  const isValidMessage = /^[A-Za-z0-9 !@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]{1,400}$/.test(message);
+
+  if (!isValidMessage) {
+    alert("Message should only contain English letters, numbers, and be less than 400 characters.");
+    return;
+  }
+
+  if (message === "") return;
+
+  switchActives(false);
+  userInput.value = "";
+  appendMessage("user", message);
+  
+  if (message === "developer") {
+    setTimeout(() => {
+      appendMessage("bot", "VLR - Iraclion TG: @VLR_Iraclion");
+      switchActives(true);
+    }, 1000);
+    return;
+  }
+
+  const url = "https://robomatic-ai.p.rapidapi.com/api";
+  const options = {
+    method: "POST",
+    headers: {
+      "content-type": "application/x-www-form-urlencoded",
+      "X-RapidAPI-Key": "dec142f56cmsh3b57075872d7cd6p1bac47jsn4ad75d3b9c8b",
+      "X-RapidAPI-Host": "robomatic-ai.p.rapidapi.com",
+    },
+    body: new URLSearchParams({
+      in: message,
+      op: "in",
+      cbot: "1",
+      SessionID: "RapidAPI1",
+      cbid: "1",
+      key: "RHMN5hnQ4wTYZBGCF3dfxzypt68rVP",
+      ChatSource: "RapidAPI",
+      duration: "1",
+    }),
+  };
+
+  try {
+    const response = await fetch(url, options);
+    const data = await response.json();
+    const botMessage = data.out || "Sorry, I can't process your request.";
+    appendMessage("bot", botMessage);
+  } catch (error) {
+    console.error(error);
+    appendMessage("bot", "An error occurred while processing your request.");
+  } finally {
+    switchActives(true);
+  }
+}
+
+function appendMessage(sender, message) {
+  info.style.display = "none";
+
+  const messageElement = document.createElement("div");
+  const iconElement = document.createElement("div");
+  const chatElement = document.createElement("div");
+  const icon = document.createElement("i");
+
+  chatElement.classList.add("chat-box");
+  iconElement.classList.add("icon");
+  messageElement.classList.add(sender);
+  messageElement.innerText = message;
+
+  if (sender === "user") {
+    icon.classList.add("fa-regular", "fa-user");
+    iconElement.setAttribute("id", "user-icon");
+  } else {
+    icon.classList.add("fa-solid", "fa-robot");
+    iconElement.setAttribute("id", "bot-icon");
+  }
+
+  iconElement.appendChild(icon);
+  chatElement.appendChild(iconElement);
+  chatElement.appendChild(messageElement);
+  chatLog.appendChild(chatElement);
+  chatLog.scrollTo = chatLog.scrollHeight;
+}
+
+function switchActives(isActive) {
+  userInput.disabled = !isActive;
+  sendButton.disabled = !isActive;
+
+  buttonIcon.classList.toggle("fa-solid", isActive);
+  buttonIcon.classList.toggle("fa-paper-plane", isActive);
+  buttonIcon.classList.toggle("fas", !isActive);
+  buttonIcon.classList.toggle("fa-spinner", !isActive);
+  buttonIcon.classList.toggle("fa-pulse", !isActive);
+}
